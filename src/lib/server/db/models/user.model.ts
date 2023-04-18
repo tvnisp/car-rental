@@ -4,6 +4,12 @@ import crypto from 'crypto';
 import type { Document, Model } from 'mongoose';
 import { model, models, Schema } from 'mongoose';
 
+const passwordValidator = (v: string) => {
+  return /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/gm.test(
+    v
+  );
+};
+
 export interface IUser extends Document {
   firstName: string;
   lastName: string;
@@ -19,8 +25,8 @@ export interface IUser extends Document {
     expiryDate: Date;
     cvv: string;
   };
-  resetPasswordToken?: String;
-  resetPasswordExpire?: Date;
+  resetPasswordToken?: String | null;
+  resetPasswordExpire?: Date | null;
   [key: string]: any;
 }
 
@@ -46,11 +52,7 @@ const userSchema = new Schema(
       type: String,
       required: true,
       validate: {
-        validator: (v: string) => {
-          return /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/gm.test(
-            v
-          );
-        },
+        validator: passwordValidator,
         message:
           'Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character (!@#$%^&*()_+-=[]{};:\'",./<>?)',
       },
@@ -80,6 +82,8 @@ const userSchema = new Schema(
       expiryDate: { type: Date },
       cvv: { type: String },
     },
+    resetPasswordToken: { type: String, default: null },
+    resetPasswordExpire: { type: Date, default: null },
   },
   { timestamps: true }
 );
@@ -112,7 +116,26 @@ userSchema.methods.generateResetPasswordToken = function (): string {
     .update(resetToken)
     .digest('hex');
   user.resetPasswordExpire = new Date(Date.now() + 10 * 60 * 1000); // Token valid for 10 minutes
+  user.save();
   return resetToken;
+};
+
+// Compare password method
+userSchema.methods.resetPassword = async function (
+  password: string,
+  confPassword: string
+) {
+  if (password !== confPassword || passwordValidator(password) === false)
+    return false;
+  const user = this as IUser;
+  const salt = await bcrypt.genSalt(10);
+  const hash = await bcrypt.hash(password, salt);
+  user.password = hash;
+  // Allows to change password only once per token
+  user.resetPasswordToken = null;
+  user.resetPasswordExpire = null;
+  user.save();
+  return true;
 };
 
 const User: Model<IUser> = models.User || model<IUser>('User', userSchema);

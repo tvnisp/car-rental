@@ -94,9 +94,9 @@ export const updateUser = async (
 ) => {
   try {
     const { id } = req.query;
-    const { role } = req.body as IUser;
-    const updateObj = req.body as IUser;
-    const user = await User.findById(id);
+    const { role } = req.body;
+    const updateObj = req.body;
+    const user = await User.findById<IUser>(id);
 
     if (role === 'admin' || role === 'editor')
       return res.status(401).json({
