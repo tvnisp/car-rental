@@ -6,8 +6,9 @@ import React from 'react';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 
 const Protected: NextPage = (): JSX.Element => {
-  const { status } = useSession();
+  const { data, status } = useSession();
   const { name, email } = useCurrentUser();
+  console.log(data);
 
   React.useEffect(() => {
     if (status === 'unauthenticated') Router.replace('/auth/signin');

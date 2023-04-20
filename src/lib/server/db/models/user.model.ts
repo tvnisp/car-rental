@@ -11,6 +11,7 @@ const passwordValidator = (v: string) => {
 };
 
 export interface IUser extends Document {
+  _id: string;
   firstName: string;
   lastName: string;
   email: string;
@@ -121,21 +122,20 @@ userSchema.methods.generateResetPasswordToken = function (): string {
 };
 
 // Compare password method
-userSchema.methods.resetPassword = async function (
-  password: string,
-  confPassword: string
-) {
-  if (password !== confPassword || passwordValidator(password) === false)
-    return false;
+userSchema.methods.resetPassword = async function (password: string) {
+  if (passwordValidator(password) === false)
+    return {
+      passwordChanged: false,
+      message:
+        'Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character (!@#$%^&*()_+-=[]{};:\'",./<>?)',
+    };
   const user = this as IUser;
-  const salt = await bcrypt.genSalt(10);
-  const hash = await bcrypt.hash(password, salt);
-  user.password = hash;
+  user.password = password;
   // Allows to change password only once per token
   user.resetPasswordToken = null;
   user.resetPasswordExpire = null;
   user.save();
-  return true;
+  return { passwordChanged: true, message: 'Password succesfully changed' };
 };
 
 const User: Model<IUser> = models.User || model<IUser>('User', userSchema);

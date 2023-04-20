@@ -31,7 +31,6 @@ export default async function handler(
   });
 
   const isCarAvailable = _.isEmpty(carBookings);
-  console.log('is car available', isCarAvailable);
 
   switch (method) {
     case 'POST':
