@@ -5,6 +5,9 @@ import type { IUser } from '@/lib/server/db/models/user.model';
 import User from '@/lib/server/db/models/user.model';
 import type { IResponse } from '@/types/server';
 
+import { sendEmail } from '../nodemailer/nodemailer';
+import { getResetPassTemplate } from '../nodemailer/templates/reset-password';
+
 /**
  * @desc    Authenticate a user
  * @route   POST /api/auth/userAuth
@@ -31,7 +34,7 @@ export const authenticateUser = async (
     const isPasswordValid = await user?.comparePassword(password);
     // Check if password is valid
     if (!isPasswordValid)
-      return res.status(200).json({
+      return res.status(401).json({
         data: { isPasswordValid, message: 'Authentication' },
       });
 
@@ -67,7 +70,6 @@ export const generateResetPasswordToken = async (
 ) => {
   try {
     const { email } = req.body;
-
     // Check for missing fields
     if (!email) return res.status(400).json({ error: 'Provide an email' });
 
@@ -75,19 +77,26 @@ export const generateResetPasswordToken = async (
     const user = await User.findOne<IUser>({ email });
 
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      return res.status(404).json({
+        error: 'The e-mail you provided was not found in our databases',
+      });
     }
 
-    // Generate reset password token and send email
-    await user?.generateResetPasswordToken();
-    // TODO send email with the token
+    try {
+      // Generate reset password token and send email
+      const token = await user?.generateResetPasswordToken();
+      const emailBody = getResetPassTemplate(token);
+      await sendEmail(email, 'Reset Password Token', emailBody);
 
+      return res.status(200).json({
+        data: {
+          message: 'Reset token created successfully',
+        },
+      });
+    } catch (error) {
+      return res.status(400).json({ error: 'Mail was not sent' });
+    }
     // Return success response to client
-    return res.status(200).json({
-      data: {
-        message: 'Reset token created successfully',
-      },
-    });
   } catch (err) {
     return res.status(500).json({ error: 'Internal Server Error' });
   }
@@ -103,8 +112,7 @@ export const resetPassword = async (
   res: NextApiResponse<IResponse<any>>
 ) => {
   try {
-    const { token } = req.query;
-    const { password, confPassword } = req.body;
+    const { password, confPassword, token } = req.body;
 
     // Check if required values are missing
     if (!token || !password || !confPassword)
@@ -113,7 +121,7 @@ export const resetPassword = async (
     const passwordMatch = password === confPassword;
 
     if (!passwordMatch)
-      return res.status(401).json({ error: 'Password do not match' });
+      return res.status(401).json({ error: 'Passwords do not match' });
 
     // Check if reset token is valid and not expired
     const user = await User.findOne<IUser>({
@@ -126,9 +134,9 @@ export const resetPassword = async (
     // Check if the new password is different from the old one
     const passwordExists = await user?.comparePassword(password);
     if (passwordExists)
-      return res
-        .status(409)
-        .json({ error: 'Password cannot be the same as the old one' });
+      return res.status(409).json({
+        error: 'Password cannot be the same as the old one',
+      });
 
     // Reset the user's password
     const reset = await user?.resetPassword(password);

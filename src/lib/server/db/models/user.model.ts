@@ -112,13 +112,14 @@ userSchema.methods.comparePassword = async function (
 userSchema.methods.generateResetPasswordToken = function (): string {
   const user = this as IUser;
   const resetToken = crypto.randomBytes(20).toString('hex');
-  user.resetPasswordToken = crypto
+  const hashedToken = crypto
     .createHash('sha256')
     .update(resetToken)
     .digest('hex');
+  user.resetPasswordToken = hashedToken;
   user.resetPasswordExpire = new Date(Date.now() + 10 * 60 * 1000); // Token valid for 10 minutes
   user.save();
-  return resetToken;
+  return hashedToken;
 };
 
 // Compare password method

@@ -28,6 +28,8 @@ export const createUser = async (
       role,
     } = req.body as IUser;
 
+    const errors = [];
+
     // Check if all required fields are included
     if (
       !email ||
@@ -49,20 +51,26 @@ export const createUser = async (
     const alreadyExists = await User.findOne({ email });
     const passwordMatch = password === confPassword;
 
-    if (alreadyExists) {
-      return res.status(400).json({ error: 'User already exists' });
-    }
-    if (!passwordMatch) {
-      return res.status(400).json({ error: 'Passwords do not match' });
-    }
+    if (alreadyExists) errors.push('User Already exists');
+    if (!passwordMatch) errors.push('Passwords do not match');
 
-    const newUser = await User.create(req.body);
-    return res.status(200).json({
-      data: {
-        action: 'New user',
-        newUser,
-      },
-    });
+    if (alreadyExists || !passwordMatch)
+      return res.status(400).json({ error: errors });
+
+    try {
+      const newUser = await User.create(req.body);
+      return res.status(200).json({
+        data: {
+          action: 'New user',
+          newUser,
+        },
+      });
+    } catch (error: any) {
+      for (const value of Object.values(error.errors)) {
+        errors.push(`${value}`);
+      }
+      return res.status(400).json({ error: errors });
+    }
   } catch (err) {
     return res.status(400).json({
       error: err as string,

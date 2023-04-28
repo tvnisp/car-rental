@@ -19,3 +19,16 @@ a:hover {
 .content ul {
   @apply my-6;
 }
+
+.spinner {
+  animation: spin 3s linear infinite; 
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

@@ -1,5 +1,5 @@
 export interface IResponse<T> {
-  error?: string | number;
+  error?: string | number | Array<string>;
   data?: T;
 }
 
