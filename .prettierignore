@@ -4,4 +4,4 @@ coverage
 public
 .github
 package.json
-package-lock.json
+yarn.lock
