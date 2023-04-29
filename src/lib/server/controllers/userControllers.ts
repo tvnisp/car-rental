@@ -51,7 +51,7 @@ export const createUser = async (
     const alreadyExists = await User.findOne({ email });
     const passwordMatch = password === confPassword;
 
-    if (alreadyExists) errors.push('User Already exists');
+    if (alreadyExists) errors.push('Email already exists');
     if (!passwordMatch) errors.push('Passwords do not match');
 
     if (alreadyExists || !passwordMatch)
@@ -69,12 +69,11 @@ export const createUser = async (
       for (const value of Object.values(error.errors)) {
         errors.push(`${value}`);
       }
+      // Validation errors
       return res.status(400).json({ error: errors });
     }
   } catch (err) {
-    return res.status(400).json({
-      error: err as string,
-    });
+    return res.status(500).json({ error: 'Internal Server Error' });
   }
 };
 
@@ -117,7 +116,8 @@ export const updateUser = async (
     const user = await User.findById<IUser>(id);
 
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      console.log('User not found');
+      return res.status(404).json({ error: 'Unexpected error' });
     }
 
     const isCurrentLoggedUser = verifyToken(authorization || '', user);
@@ -136,8 +136,7 @@ export const updateUser = async (
         data: { message: 'User updated', user },
       });
     }
-
-    return res.status(400).json({ error: 'Not authorized' });
+    return res.status(401).json({ error: 'Not authorized' });
   } catch (err) {
     return res.status(500).json({ error: 'Internal Server Error' });
   }
@@ -159,7 +158,8 @@ export const deleteUser = async (
     const user = await User.findById<IUser>(id);
 
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      console.log('User not found');
+      return res.status(400).json({ error: 'Unexpected error' });
     }
 
     const isCurrentLoggedUser = verifyToken(authorization || '', user);
@@ -174,7 +174,7 @@ export const deleteUser = async (
       });
     }
 
-    return res.status(400).json({ error: 'Not authorized' });
+    return res.status(401).json({ error: 'Not authorized' });
   } catch (err) {
     return res.status(500).json({ error: 'Internal Server Error' });
   }

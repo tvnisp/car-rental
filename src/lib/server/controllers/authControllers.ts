@@ -28,7 +28,8 @@ export const authenticateUser = async (
 
     // Check if user exists in the database
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      console.log('User not found');
+      return res.status(401).json({ error: 'Invalid Credentials' });
     }
 
     const isPasswordValid = await user?.comparePassword(password);
@@ -77,8 +78,10 @@ export const generateResetPasswordToken = async (
     const user = await User.findOne<IUser>({ email });
 
     if (!user) {
-      return res.status(404).json({
-        error: 'The e-mail you provided was not found in our databases',
+      console.log('The user was not found');
+      // Status code 200 because we don't want the user to know if the email was incorrect
+      return res.status(200).json({
+        error: 'Reset token creation',
       });
     }
 
@@ -90,11 +93,12 @@ export const generateResetPasswordToken = async (
 
       return res.status(200).json({
         data: {
-          message: 'Reset token created successfully',
+          message: 'Reset token creation',
         },
       });
     } catch (error) {
-      return res.status(400).json({ error: 'Mail was not sent' });
+      console.log('Email not sent', error);
+      throw new Error('Email was not send');
     }
     // Return success response to client
   } catch (err) {
@@ -121,7 +125,7 @@ export const resetPassword = async (
     const passwordMatch = password === confPassword;
 
     if (!passwordMatch)
-      return res.status(401).json({ error: 'Passwords do not match' });
+      return res.status(400).json({ error: 'Passwords do not match' });
 
     // Check if reset token is valid and not expired
     const user = await User.findOne<IUser>({
@@ -129,7 +133,10 @@ export const resetPassword = async (
       resetPasswordExpire: { $gt: new Date(Date.now()) },
     });
 
-    if (!user) return res.status(404).json({ error: 'Token expired' });
+    if (!user) {
+      console.log('Token expired');
+      return res.status(404).json({ error: 'Unexpected error' });
+    }
 
     // Check if the new password is different from the old one
     const passwordExists = await user?.comparePassword(password);
@@ -149,7 +156,7 @@ export const resetPassword = async (
       });
 
     return res.status(401).json({
-      data: { message: reset?.message },
+      error: reset?.message,
     });
   } catch (err) {
     return res.status(500).json({ error: 'Internal Server Error' });

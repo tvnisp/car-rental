@@ -12,12 +12,14 @@ const Index = () => {
       "
       >
         <div className="flex space-x-4">
-          <button
-            className="rounded-lg bg-black p-4 text-white"
-            onClick={() => signIn()}
-          >
-            Login
-          </button>
+          {status !== 'authenticated' && (
+            <button
+              className="rounded-lg bg-black p-4 text-white"
+              onClick={() => signIn()}
+            >
+              Login
+            </button>
+          )}
           {status === 'authenticated' && (
             <button
               className="rounded-lg bg-black p-4 text-white"
