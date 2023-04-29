@@ -1,5 +1,5 @@
 export function getResetPassTemplate(token: string) {
-  return `
+	return `
     <html>
       <body>
         <p>To change your password click the following link:</p>

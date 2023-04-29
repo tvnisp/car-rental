@@ -1,5 +1,5 @@
-import type { Mongoose } from 'mongoose';
+import type {Mongoose} from 'mongoose';
 
 declare global {
-  let isConnected: Promise<Mongoose>;
+	let isConnected: Promise<Mongoose>;
 }

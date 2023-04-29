@@ -1,15 +1,15 @@
-import type { NextPage } from 'next';
+import type {NextPage} from 'next';
 
-import { LoginForm } from '@/components/forms/auth/LoginForm';
+import {LoginForm} from '@/components/forms/auth/LoginForm';
 
 const SignIn: NextPage = (): JSX.Element => {
-  return (
-    <section className="bg-gray-50">
-      <div className="mx-auto flex flex-col items-center justify-center px-6 py-8 md:h-screen lg:py-0">
-        <LoginForm />
-      </div>
-    </section>
-  );
+	return (
+		<section className="bg-gray-50">
+			<div className="mx-auto flex flex-col items-center justify-center px-6 py-8 md:h-screen lg:py-0">
+				<LoginForm />
+			</div>
+		</section>
+	);
 };
 
 export default SignIn;

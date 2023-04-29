@@ -22,13 +22,15 @@
 				"@typescript-eslint",
 				"unused-imports",
 				"tailwindcss",
-				"simple-import-sort"
+				"simple-import-sort",
+				"prettier"
 			],
 			"extends": [
 				"plugin:tailwindcss/recommended",
 				"airbnb-typescript",
 				"next/core-web-vitals",
-				"plugin:prettier/recommended"
+				"plugin:prettier/recommended",
+				"prettier"
 			],
 			"parserOptions": {
 				"project": "./tsconfig.json"
