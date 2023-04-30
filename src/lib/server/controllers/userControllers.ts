@@ -4,8 +4,7 @@ import type {IUser} from '@/lib/server/db/models/user.model';
 import User from '@/lib/server/db/models/user.model';
 import type {IResponse} from '@/types/server';
 
-import authMiddleware from '../middlewares/authMiddleware';
-import {verifyToken} from '../utils/auth';
+import {verifyUserAccess} from '../utils/auth';
 
 /**
  * @desc Create a new user
@@ -120,10 +119,7 @@ export const updateUser = async (
 			return res.status(404).json({error: 'Unexpected error'});
 		}
 
-		const isCurrentLoggedUser = verifyToken(authorization || '', user);
-
-		const isAdmin = user.role === 'admin';
-		const isAuthorized = isAdmin || isCurrentLoggedUser;
+		const isAuthorized = verifyUserAccess(authorization || '', user);
 
 		if (isAuthorized) {
 			await Promise.all(
@@ -162,7 +158,7 @@ export const deleteUser = async (
 			return res.status(400).json({error: 'Unexpected error'});
 		}
 
-		const isCurrentLoggedUser = verifyToken(authorization || '', user);
+		const isCurrentLoggedUser = verifyUserAccess(authorization || '', user);
 
 		const isAdmin = user.role === 'admin';
 		const isAuthorized = isAdmin || isCurrentLoggedUser;
@@ -178,22 +174,4 @@ export const deleteUser = async (
 	} catch (err) {
 		return res.status(500).json({error: 'Internal Server Error'});
 	}
-};
-
-export const updateUserHandler = async (
-	req: NextApiRequest,
-	res: NextApiResponse
-) => {
-	await authMiddleware('admin')(req, res, async () => {
-		await updateUser(req, res);
-	});
-};
-
-export const deleteUserHandler = async (
-	req: NextApiRequest,
-	res: NextApiResponse
-) => {
-	await authMiddleware('admin')(req, res, async () => {
-		await deleteUser(req, res);
-	});
 };
