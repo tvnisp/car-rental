@@ -22,9 +22,9 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
-          cache: "npm"
-      - run: npm ci
-      - run: npm run build-prod
+          cache: "yarn"
+      - run: yarn ci
+      - run: yarn build-prod
 
   test:
     strategy:
@@ -43,23 +43,23 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: "npm"
-      - run: npm ci
+      - run: yarn ci
 
       - if: github.event_name == 'pull_request'
         name: Validate all commits from PR
         run: npx commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
 
       - name: Linter
-        run: npm run lint
+        run: yarn lint
 
       - name: Type checking
-        run: npm run check-types
+        run: yarn check-types
 
       - name: Run unit tests
-        run: npm run test
+        run: yarn test
 
       - name: Run storybook tests
-        run: npm run test-storybook:ci
+        run: yarn test-storybook:ci
 
       - name: Run e2e tests
         run: npx percy exec -- npm run e2e:headless
