@@ -14,6 +14,10 @@ function getTypeClassnames(type: IButtonProps['type']) {
 		case 'dark':
 			className = 'bg-black text-white focus:outline-none focus:ring-4';
 			break;
+		case 'primary':
+			className =
+				'bg-slate-500 text-white focus:outline-none focus:ring-4';
+			break;
 		default:
 			className = '';
 			break;
