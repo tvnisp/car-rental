@@ -21,7 +21,7 @@
 		"storybook": "storybook dev -p 6006",
 		"storybook:build": "storybook build",
 		"storybook:serve": "http-server storybook-static --port 6006 --silent",
-		"serve-storybook": "run-s storybook:*",
+		"serve-storybook": "yarn storybook:build && yarn storybook:serve",
 		"test-storybook:ci": "start-server-and-test serve-storybook http://localhost:6006 test-storybook",
 		"prepare": "husky install",
 		"postbuild": "next-sitemap"
