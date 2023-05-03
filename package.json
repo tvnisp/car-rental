@@ -1,13 +1,13 @@
 {
-	"name": "next-js-boilerplate",
+	"name": "car_rental_app",
 	"version": "3.9.0",
 	"scripts": {
 		"dev": "next dev",
 		"build": "next build",
 		"start": "next start",
-		"build-stats": "cross-env ANALYZE=true yarn build",
+		"build-stats": "cross-env ANALYZE=true npm run build",
 		"export": "next export",
-		"build-prod": "yarn clean && yarn build && yarn export",
+		"build-prod": "run-s clean build export",
 		"clean": "rimraf .next out",
 		"lint": "next lint",
 		"format": "next lint --fix && prettier '**/*.{json,yaml}' --write --ignore-path .gitignore",
@@ -21,7 +21,7 @@
 		"storybook": "storybook dev -p 6006",
 		"storybook:build": "storybook build",
 		"storybook:serve": "http-server storybook-static --port 6006 --silent",
-		"serve-storybook": "yarn storybook:build && yarn storybook:serve",
+		"serve-storybook": "run-s storybook:*",
 		"test-storybook:ci": "start-server-and-test serve-storybook http://localhost:6006 test-storybook",
 		"prepare": "husky install",
 		"postbuild": "next-sitemap"
@@ -100,6 +100,7 @@
 		"jest": "^29.5.0",
 		"jest-environment-jsdom": "^29.5.0",
 		"lint-staged": "^13.2.0",
+		"npm-run-all": "^4.1.5",
 		"postcss": "^8.4.21",
 		"prettier": "^2.8.7",
 		"rimraf": "^4.4.1",

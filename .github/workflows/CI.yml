@@ -2,15 +2,15 @@ name: CI
 
 on:
     push:
-        branches: [master]
+        branches: [main]
     pull_request:
-        branches: [master]
+        branches: [main]
 
 jobs:
     build:
         strategy:
             matrix:
-                node-version: [16.x, 18.x]
+                node-version: [14.x, 16.x, 18.x]
                 # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
         name: Build with ${{ matrix.node-version }}
@@ -22,9 +22,9 @@ jobs:
               uses: actions/setup-node@v3
               with:
                   node-version: ${{ matrix.node-version }}
-                  cache: 'yarn'
-            - run: yarn install
-            - run: yarn build-prod
+                  cache: 'npm'
+            - run: npm ci
+            - run: npm run build-prod
 
     test:
         strategy:
@@ -42,26 +42,26 @@ jobs:
               uses: actions/setup-node@v3
               with:
                   node-version: ${{ matrix.node-version }}
-                  cache: 'yarn'
-            - run: yarn install
+                  cache: 'npm'
+            - run: npm ci
 
             - if: github.event_name == 'pull_request'
               name: Validate all commits from PR
               run: npx commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
 
             - name: Linter
-              run: yarn lint
+              run: npm run lint
 
             - name: Type checking
-              run: yarn check-types
+              run: npm run check-types
 
             - name: Run unit tests
-              run: yarn test
+              run: npm run test
 
             - name: Run storybook tests
-              run: yarn test-storybook:ci
+              run: npm run test-storybook:ci
 
             - name: Run e2e tests
-              run: npx percy exec -- yarn e2e:headless
+              run: npx percy exec -- npm run e2e:headless
               env:
                   PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}

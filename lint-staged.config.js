@@ -1,5 +1,5 @@
 module.exports = {
 	'*.{js,jsx,ts,tsx}': ['eslint --fix', 'eslint'],
-	'**/*.ts?(x)': () => 'yarn check-types',
+	'**/*.ts?(x)': () => 'npm run check-types',
 	'*.{json,yaml}': ['prettier --write'],
 };
