@@ -27,7 +27,7 @@
 		"postbuild": "next-sitemap"
 	},
 	"dependencies": {
-		"bcrypt": "^5.1.0",
+		"bcrypt": "^4.0.0",
 		"classnames": "^2.3.2",
 		"jsonwebtoken": "^9.0.0",
 		"lodash": "^4.17.21",
