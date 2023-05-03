@@ -1,5 +1,5 @@
 /* eslint-disable func-names */
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import type {Document, Model} from 'mongoose';
 import {model, models, Schema} from 'mongoose';
